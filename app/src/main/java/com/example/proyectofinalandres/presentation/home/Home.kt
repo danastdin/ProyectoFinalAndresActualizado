@@ -32,7 +32,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
-    onProductClick: (Product) -> Unit = {},
+    onProductClick: (String) -> Unit = {},      // ahora recibe sólo el ID
     onProfileClick: () -> Unit = {}
 ) {
     var user by remember { mutableStateOf<User?>(null) }
@@ -49,8 +49,10 @@ fun HomeScreen(
         db.collection("products")
             .get()
             .addOnSuccessListener { result ->
-                val productList = result.documents.mapNotNull { it.toObject(Product::class.java) }
-                products = productList
+                products = result.documents.mapNotNull { doc ->
+                    doc.toObject(Product::class.java)
+                        ?.copy(id = doc.id)
+                }
             }
     }
 
@@ -67,7 +69,7 @@ fun HomeScreen(
                     IconButton(onClick = onProfileClick) {
                         if (!user?.image.isNullOrEmpty()) {
                             AsyncImage(
-                                model = user?.image,
+                                model = user!!.image,
                                 contentDescription = "Perfil",
                                 modifier = Modifier
                                     .size(32.dp)
@@ -84,32 +86,30 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = Color.White
-            ) {
-                IconButton(onClick = onHomeClick, modifier = Modifier.weight(1f)) {
+            BottomAppBar(containerColor = Color.White) {
+                IconButton(onClick = onHomeClick, Modifier.weight(1f)) {
                     Icon(painter = painterResource(id = R.drawable.home), contentDescription = "Home")
                 }
-                IconButton(onClick = onSearchClick, modifier = Modifier.weight(1f)) {
+                IconButton(onClick = onSearchClick, Modifier.weight(1f)) {
                     Icon(painter = painterResource(id = R.drawable.search_lens), contentDescription = "Buscar")
                 }
-                IconButton(onClick = onAddClick, modifier = Modifier.weight(1f)) {
-                    Icon(painter = painterResource(id = R.drawable.add), contentDescription = "Añadir producto")
+                IconButton(onClick = onAddClick, Modifier.weight(1f)) {
+                    Icon(painter = painterResource(id = R.drawable.add), contentDescription = "Añadir")
                 }
-                IconButton(onClick = onCartClick, modifier = Modifier.weight(1f)) {
+                IconButton(onClick = onCartClick, Modifier.weight(1f)) {
                     Icon(painter = painterResource(id = R.drawable.shopping_cart), contentDescription = "Carrito")
                 }
             }
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .background(Color(0xFFE3F2FD))
         ) {
             Text(
-                text = "Productos añadidos recientemente",
+                "Productos añadidos recientemente",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
@@ -126,15 +126,15 @@ fun HomeScreen(
             ) {
                 items(products) { product ->
                     Card(
-                        modifier = Modifier
+                        Modifier
                             .fillMaxWidth()
                             .height(240.dp)
-                            .clickable { onProductClick(product) },
+                            .clickable { onProductClick(product.id) }, // pasamos sólo el id
                         elevation = CardDefaults.cardElevation(4.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(
-                            modifier = Modifier
+                            Modifier
                                 .fillMaxSize()
                                 .padding(8.dp)
                         ) {
@@ -147,11 +147,9 @@ fun HomeScreen(
                                     .weight(1f)
                                     .clip(RoundedCornerShape(8.dp))
                             )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
+                            Spacer(Modifier.height(8.dp))
                             Text(
-                                text = product.name,
+                                product.name,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 maxLines = 1,

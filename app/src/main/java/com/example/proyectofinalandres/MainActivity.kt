@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     NavigationWrapper(navController, auth, db)
 
                     // Corrutina para iniciar sesión automático si el usuario ya se ha loggeado
+
                     LaunchedEffect(auth.currentUser) {
                         auth.currentUser?.let {
                             navController.navigate("home") {
