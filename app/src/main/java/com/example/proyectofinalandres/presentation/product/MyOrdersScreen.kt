@@ -41,6 +41,7 @@ fun MyOrdersScreen(
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
 
+    // cargo los datos desde firestore
     LaunchedEffect(uid) {
         if (uid != null) {
             db.collection("users")
@@ -100,6 +101,7 @@ fun MyOrdersScreen(
                     Text("No tienes pedidos aún", Modifier.align(Alignment.Center), fontSize = 16.sp)
                 }
                 else -> {
+                    // muestro los productos en forma de columna
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)

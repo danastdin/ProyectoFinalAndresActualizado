@@ -19,6 +19,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
+
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //Inicializo firebase y firestore
         auth = Firebase.auth
         db = Firebase.firestore
 
@@ -39,8 +41,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavigationWrapper(navController, auth, db)
 
-                    // Corrutina para iniciar sesión automático si el usuario ya se ha loggeado
-
+                    //Corrutina para iniciar sesión automático si el usuario ya se ha loggeado
                     LaunchedEffect(auth.currentUser) {
                         auth.currentUser?.let {
                             navController.navigate("home") {

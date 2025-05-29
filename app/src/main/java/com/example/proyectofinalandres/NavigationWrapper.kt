@@ -13,6 +13,7 @@ import com.example.proyectofinalandres.presentation.access.SignUp
 import com.example.proyectofinalandres.presentation.home.HomeScreen
 import com.example.proyectofinalandres.presentation.home.SearchScreen
 import com.example.proyectofinalandres.presentation.inicio.Inicio
+import com.example.proyectofinalandres.presentation.product.AddProductScreen
 import com.example.proyectofinalandres.presentation.product.CartScreen
 import com.example.proyectofinalandres.presentation.product.MyOrdersScreen
 import com.example.proyectofinalandres.presentation.product.ProductDetailScreen
@@ -28,14 +29,12 @@ fun NavigationWrapper(
     db: FirebaseFirestore
 ) {
     NavHost(navController = navController, startDestination = "inicio") {
-
         composable("inicio") {
             Inicio(
                 navigateToLogin  = { navController.navigate("login") },
                 navigateToSignUp = { navController.navigate("signup") }
             )
         }
-
         composable("signup") {
             SignUp(
                 auth = auth,
@@ -52,7 +51,6 @@ fun NavigationWrapper(
                 }
             )
         }
-
         composable("login") {
             Login(
                 auth = auth,
@@ -64,30 +62,25 @@ fun NavigationWrapper(
                 }
             )
         }
-
         composable("home") {
             HomeScreen(
                 auth           = auth,
                 db             = db,
-                onHomeClick    = { },
+                onHomeClick    = { /*…*/ },
                 onSearchClick  = { navController.navigate("search") },
                 onCartClick    = { navController.navigate("cart") },
-                onAddClick     = { },
-                onProductClick = { productId ->
-                    navController.navigate("productDetail/$productId")
-                },
+                onAddClick     = { navController.navigate("addProduct") },
+                onProductClick = { id -> navController.navigate("productDetail/$id") },
                 onProfileClick = { navController.navigate("profile") }
             )
         }
-
         composable("search") {
             SearchScreen(
-                db             = db,
-                onBack         = { navController.popBackStack() },
-                onProductClick = { }
+                db = db,
+                onBack = { navController.popBackStack() },
+                onProductClick = { /*…*/ }
             )
         }
-
         composable("cart") {
             CartScreen(
                 auth             = auth,
@@ -96,7 +89,6 @@ fun NavigationWrapper(
                 navigateToOrders = { navController.navigate("orders") }
             )
         }
-
         composable("orders") {
             MyOrdersScreen(
                 auth         = auth,
@@ -104,22 +96,27 @@ fun NavigationWrapper(
                 navigateBack = { navController.popBackStack() }
             )
         }
-
-        // ✅ Ruta con argumento productId
         composable(
             route = "productDetail/{productId}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+        ) { back ->
+            val pid = back.arguments?.getString("productId") ?: return@composable
             ProductDetailScreen(
-                productId = productId,
-                auth = auth,
-                db = db,
+                productId    = pid,
+                auth         = auth,
+                db           = db,
                 navigateBack = { navController.popBackStack() },
-                onAddedToCart = { navController.popBackStack() }
+                onAddedToCart= { navController.popBackStack() }
             )
         }
-
+        // Nueva ruta para añadir producto
+        composable("addProduct") {
+            AddProductScreen(
+                auth        = auth,
+                db          = db,
+                navigateBack= { navController.popBackStack() }
+            )
+        }
         composable("profile") {
             ProfileScreen(
                 auth,
@@ -129,7 +126,7 @@ fun NavigationWrapper(
                         popUpTo("profile") { inclusive = true }
                     }
                 },
-                navigateBack = { navController.popBackStack() },
+                navigateBack     = { navController.popBackStack() },
                 navigateToOrders = { navController.navigate("orders") }
             )
         }

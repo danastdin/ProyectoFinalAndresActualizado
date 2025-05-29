@@ -32,7 +32,7 @@ fun ProductDetailScreen(
     var addingToCart by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Carga del producto
+    // corrutina para cargar el producto
     LaunchedEffect(productId) {
         db.collection("products").document(productId).get()
             .addOnSuccessListener { snap ->

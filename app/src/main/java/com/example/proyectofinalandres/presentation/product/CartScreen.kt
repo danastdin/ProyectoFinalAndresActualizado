@@ -150,10 +150,10 @@ fun CartScreen(
                         }
                     }
 
-                    // Botón de "Pagar"
+                    // Botón de pagar
                     Button(
                         onClick = {
-                            // mover seleccionados a "orders" y borrarlos del carrito
+                            // mover seleccionados a orders y quitarlos del carrito
                             uid?.let { u ->
                                 val batch = db.batch()
                                 val orderCol = db.collection("users").document(u).collection("orders")

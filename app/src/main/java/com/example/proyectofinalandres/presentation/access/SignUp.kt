@@ -113,7 +113,6 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Nombre de usuario
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -133,7 +132,6 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Correo
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -154,7 +152,6 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -185,7 +182,7 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //Confirmar contraseña
+            // textfield para confirmar la contraseña
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -270,6 +267,7 @@ fun SignUp(
                                         birthDate = birthDate
                                     )
                                     db.collection("users").document(uid).set(user)
+                                        // si pilla bien me crea el usuario y me lleva a la pantalla de login
                                         .addOnSuccessListener {
                                             isLoading = false
                                             navigateToLogin()

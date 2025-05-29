@@ -35,14 +35,14 @@ fun SearchScreen(
     var loading by remember { mutableStateOf(true) }
     var query by remember { mutableStateOf("") }
 
-    // Carga inicial de todos los productos
+    // en esta corrutina me cargo primero todos los productos
     LaunchedEffect(Unit) {
         val snapshot = db.collection("products").get().await()
         allProducts = snapshot.documents.mapNotNull { it.toObject(Product::class.java)?.copy(id = it.id) }
         loading = false
     }
 
-    // Filtrado por nombre
+    // filtrado por nombre si el campo de búsqueda NO está vacío
     val filtered = remember(allProducts, query) {
         if (query.isBlank()) allProducts
         else allProducts.filter {

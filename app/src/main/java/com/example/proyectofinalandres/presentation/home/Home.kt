@@ -32,7 +32,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
-    onProductClick: (String) -> Unit = {},      // ahora recibe sólo el ID
+    onProductClick: (String) -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
     var user by remember { mutableStateOf<User?>(null) }
@@ -41,18 +41,11 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         auth.currentUser?.uid?.let { uid ->
             db.collection("users").document(uid).get()
-                .addOnSuccessListener { snap ->
-                    user = snap.toObject(User::class.java)
-                }
+                .addOnSuccessListener { snap -> user = snap.toObject(User::class.java) }
         }
-
-        db.collection("products")
-            .get()
+        db.collection("products").get()
             .addOnSuccessListener { result ->
-                products = result.documents.mapNotNull { doc ->
-                    doc.toObject(Product::class.java)
-                        ?.copy(id = doc.id)
-                }
+                products = result.documents.mapNotNull { it.toObject(Product::class.java)?.copy(id = it.id) }
             }
     }
 
@@ -101,10 +94,10 @@ fun HomeScreen(
                 }
             }
         }
-    ) { innerPadding ->
+    ) { inner ->
         Column(
             Modifier
-                .padding(innerPadding)
+                .padding(inner)
                 .fillMaxSize()
                 .background(Color(0xFFE3F2FD))
         ) {
@@ -116,7 +109,6 @@ fun HomeScreen(
                     .padding(vertical = 16.dp)
                     .align(Alignment.CenterHorizontally)
             )
-
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(12.dp),
@@ -129,7 +121,7 @@ fun HomeScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(240.dp)
-                            .clickable { onProductClick(product.id) }, // pasamos sólo el id
+                            .clickable { onProductClick(product.id) },
                         elevation = CardDefaults.cardElevation(4.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
