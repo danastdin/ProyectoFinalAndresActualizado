@@ -6,7 +6,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -56,16 +55,20 @@ fun ProfileScreen(
 
     var editableName by remember { mutableStateOf(false) }
     var editableEmail by remember { mutableStateOf(false) }
-    var editableBirthDate by remember { mutableStateOf(false) }
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var birthDate by remember { mutableStateOf("") }
 
     var imageUploading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Contraseña
+    var oldPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var passwordChangeSuccess by remember { mutableStateOf(false) }
+
     val pickImage = rememberLauncherForActivityResult(contract = GetContent()) {
         imageUri = it
         if (it != null) {
@@ -95,7 +98,7 @@ fun ProfileScreen(
     }
 
     val hasChanges = user?.let {
-        name != it.name || email != it.email || birthDate != it.birthDate
+        name != it.name || email != it.email
     } ?: false
 
     LaunchedEffect(uid) {
@@ -106,7 +109,6 @@ fun ProfileScreen(
                     user = fetchedUser
                     name = fetchedUser?.name.orEmpty()
                     email = fetchedUser?.email.orEmpty()
-                    birthDate = fetchedUser?.birthDate.orEmpty()
                 }
         }
     }
@@ -172,7 +174,6 @@ fun ProfileScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Fondo con imagen local con blur y transparencia
             Image(
                 painter = painterResource(id = R.drawable.nvrmnd_fondo),
                 contentDescription = "Fondo perfil",
@@ -223,24 +224,58 @@ fun ProfileScreen(
                         editableName = !editableName
                     }
 
-                    EditableField("Fecha de nacimiento", birthDate, editableBirthDate, { birthDate = it }) {
-                        editableBirthDate = !editableBirthDate
+                    OutlinedTextField(
+                        value = oldPassword,
+                        onValueChange = { oldPassword = it },
+                        label = { Text("Contraseña actual") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it },
+                        label = { Text("Nueva contraseña") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(onClick = {
+                        val userEmail = auth.currentUser?.email
+                        if (!userEmail.isNullOrEmpty()) {
+                            val credential = com.google.firebase.auth.EmailAuthProvider
+                                .getCredential(userEmail, oldPassword)
+
+                            auth.currentUser?.reauthenticate(credential)
+                                ?.addOnSuccessListener {
+                                    auth.currentUser?.updatePassword(newPassword)
+                                        ?.addOnSuccessListener {
+                                            passwordChangeSuccess = true
+                                            oldPassword = ""
+                                            newPassword = ""
+                                        }
+                                        ?.addOnFailureListener {
+                                            errorMessage = "Error al cambiar contraseña"
+                                        }
+                                }
+                                ?.addOnFailureListener {
+                                    errorMessage = "Contraseña actual incorrecta"
+                                }
+                        }
+                    }) {
+                        Text("Cambiar contraseña")
+                    }
+
+                    if (passwordChangeSuccess) {
+                        Text("Contraseña cambiada correctamente", color = Color.Green)
                     }
 
                     if (hasChanges) {
                         Button(
                             onClick = {
-                                val updatedUser = it.copy(
-                                    name = name,
-                                    email = email,
-                                    birthDate = birthDate
-                                )
+                                val updatedUser = it.copy(name = name, email = email)
                                 db.collection("users").document(uid!!).set(updatedUser)
                                     .addOnSuccessListener {
                                         user = updatedUser
                                         editableEmail = false
                                         editableName = false
-                                        editableBirthDate = false
                                     }
                             },
                             modifier = Modifier.padding(top = 12.dp)
@@ -259,39 +294,27 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun EditableField(
+fun EditableField(
     label: String,
     value: String,
     editable: Boolean,
     onValueChange: (String) -> Unit,
-    onEditClick: () -> Unit
+    onEditToggle: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.9f), shape = MaterialTheme.shapes.medium)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(text = label, fontSize = 14.sp, color = Color.Gray)
-            if (editable) {
-                TextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                Text(text = value, fontSize = 16.sp, color = Color.Black)
-            }
-        }
-        IconButton(onClick = onEditClick) {
-            Icon(
-                painter = painterResource(id = R.drawable.edit),
-                contentDescription = "Editar"
-            )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            readOnly = !editable,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onEditToggle) {
+            Text(if (editable) "Guardar" else "Editar")
         }
     }
 }
