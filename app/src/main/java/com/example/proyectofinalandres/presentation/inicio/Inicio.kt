@@ -59,7 +59,7 @@ fun Inicio( navigateToLogin:() -> Unit = {}, navigateToSignUp: () -> Unit = {}) 
             )
 
             Text(
-                text = " trade your grails...",
+                text = " discover your grails...",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black,

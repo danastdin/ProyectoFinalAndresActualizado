@@ -122,7 +122,6 @@ fun SearchScreen(
                 .padding(inner)
                 .fillMaxSize()
         ) {
-            // Imagen de fondo con desenfoque y transparencia
             Image(
                 painter = painterResource(id = R.drawable.nvrmnd_fondo),
                 contentDescription = null,

@@ -35,7 +35,6 @@ fun ProductDetailScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var addingToCart by remember { mutableStateOf(false) }
 
-    // 1) Cargo el producto *desde servidor* (evito caché local)
     LaunchedEffect(productId) {
         db.collection("products")
             .document(productId)
@@ -49,7 +48,6 @@ fun ProductDetailScreen(
             }
     }
 
-    // 2) Cargo el usuario actual *desde servidor* para comprobar isAdmin
     LaunchedEffect(auth.currentUser?.uid) {
         auth.currentUser?.uid?.let { uid ->
             db.collection("users")
@@ -148,7 +146,6 @@ fun ProductDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 3) Solo si user?.isAdmin == true, muestro "Borrar producto"
                     if (user?.isAdmin == true) {
                         OutlinedButton(
                             onClick = {

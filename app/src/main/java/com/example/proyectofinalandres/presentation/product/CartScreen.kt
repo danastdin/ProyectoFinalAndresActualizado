@@ -93,7 +93,6 @@ fun CartScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Fondo con imagen local, blur y transparencia
             Image(
                 painter = painterResource(id = R.drawable.nvrmnd_fondo),
                 contentDescription = "Fondo Carrito",
@@ -104,7 +103,6 @@ fun CartScreen(
                     .graphicsLayer { alpha = 0.3f }
             )
 
-            // Contenido del carrito
             Column(
                 Modifier
                     .fillMaxSize()

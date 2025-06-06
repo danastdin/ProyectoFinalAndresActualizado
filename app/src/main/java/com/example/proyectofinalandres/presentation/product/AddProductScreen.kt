@@ -76,7 +76,6 @@ fun AddProductScreen(
                 .padding(inner)
                 .fillMaxSize()
         ) {
-            // Imagen de fondo desenfocada y transparente
             Image(
                 painter = painterResource(id = R.drawable.nvrmnd_fondo),
                 contentDescription = "Fondo Add Product",
