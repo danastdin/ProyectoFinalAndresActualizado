@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.proyectofinalandres.R
-import com.example.proyectofinalandres.presentation.modelo.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.Instant
@@ -53,13 +52,15 @@ fun SignUp(
     var isLoading by remember { mutableStateOf(false) }
     var attemptedSubmit by remember { mutableStateOf(false) }
 
+    // Validamos que todos los campos estén completos y que las contraseñas coincidan
     val isFormValid = username.isNotBlank() &&
             email.isNotBlank() &&
             password.isNotBlank() &&
             confirmPassword.isNotBlank() &&
-            password == confirmPassword &&
+            (password == confirmPassword) &&
             birthDate.isNotBlank()
 
+    // Si showDatePicker = true, mostramos el DatePickerDialog
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -93,6 +94,7 @@ fun SignUp(
             .padding(16.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            // Flecha para regresar a “Inicio”
             Image(
                 painter = painterResource(id = R.drawable.arrow_back),
                 contentDescription = "Volver",
@@ -113,6 +115,7 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Campo: nombre de usuario
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -132,6 +135,7 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Campo: correo electrónico
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -152,20 +156,24 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Campo: contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Contraseña *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             painter = painterResource(
-                                id = if (passwordVisible) R.drawable.hide_source else R.drawable.red_eye
+                                id = if (passwordVisible) R.drawable.hide_source
+                                else R.drawable.red_eye
                             ),
-                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            contentDescription = if (passwordVisible)
+                                "Ocultar contraseña" else "Mostrar contraseña"
                         )
                     }
                 },
@@ -182,21 +190,24 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // textfield para confirmar la contraseña
+            // Campo: confirmar contraseña
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 label = { Text("Confirmar contraseña *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                         Icon(
                             painter = painterResource(
-                                id = if (confirmPasswordVisible) R.drawable.hide_source else R.drawable.red_eye
+                                id = if (confirmPasswordVisible) R.drawable.hide_source
+                                else R.drawable.red_eye
                             ),
-                            contentDescription = if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            contentDescription = if (confirmPasswordVisible)
+                                "Ocultar contraseña" else "Mostrar contraseña"
                         )
                     }
                 },
@@ -220,7 +231,7 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //Cuadro fecha de nacimiento
+            // Campo: fecha de nacimiento (solo lectura)
             OutlinedTextField(
                 value = birthDate,
                 onValueChange = {},
@@ -247,27 +258,35 @@ fun SignUp(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Botón “Registrarse”
             Button(
                 onClick = {
                     attemptedSubmit = true
                     if (isFormValid) {
                         errorMessage = null
                         isLoading = true
+
+
                         auth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     val uid = auth.currentUser!!.uid
-                                    val user = User(
-                                        name = username,
-                                        username = username,
-                                        email = email,
-                                        description = "",
-                                        image = "",
-                                        products = emptyList(),
-                                        birthDate = birthDate
+
+
+                                    val nuevoUsuario = mapOf(
+                                        "name" to username,
+                                        "username" to username,
+                                        "email" to email,
+                                        "description" to "",
+                                        "image" to "",
+                                        "products" to listOf<Any>(),
+                                        "birthDate" to birthDate,
+                                        "isAdmin" to false
                                     )
-                                    db.collection("users").document(uid).set(user)
-                                        // si pilla bien me crea el usuario y me lleva a la pantalla de login
+
+                                    db.collection("users")
+                                        .document(uid)
+                                        .set(nuevoUsuario)
                                         .addOnSuccessListener {
                                             isLoading = false
                                             navigateToLogin()
@@ -303,10 +322,10 @@ fun SignUp(
                 }
             }
 
-            errorMessage?.let {
+            errorMessage?.let { msg ->
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = it,
+                    text = msg,
                     color = Color.Red,
                     fontSize = 14.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)

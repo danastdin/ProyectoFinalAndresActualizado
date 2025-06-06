@@ -1,5 +1,6 @@
 package com.example.proyectofinalandres.presentation.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -95,58 +98,75 @@ fun HomeScreen(
             }
         }
     ) { inner ->
-        Column(
-            Modifier
+        Box(
+            modifier = Modifier
                 .padding(inner)
                 .fillMaxSize()
-                .background(Color(0xFFE3F2FD))
         ) {
-            Text(
-                "Productos añadidos recientemente",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
+            // Imagen local con blur y transparencia
+            Image(
+                painter = painterResource(id = R.drawable.nvrmnd_fondo),
+                contentDescription = "Fondo Home",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .matchParentSize()
+                    .blur(2.dp)
+                    .graphicsLayer { alpha = 0.3f }
             )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.weight(1f)
+
+            // Contenido sobre el fondo
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
             ) {
-                items(products) { product ->
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(240.dp)
-                            .clickable { onProductClick(product.id) },
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .padding(8.dp)
+                Text(
+                    "Productos añadidos recientemente",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(products) { product ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                                .clickable { onProductClick(product.id) },
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            AsyncImage(
-                                model = product.imageUrl,
-                                contentDescription = product.name,
-                                contentScale = ContentScale.Crop,
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                product.name,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                maxLines = 1,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
+                                    .fillMaxSize()
+                                    .padding(8.dp)
+                            ) {
+                                AsyncImage(
+                                    model = product.imageUrl,
+                                    contentDescription = product.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    product.name,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
+                            }
                         }
                     }
                 }

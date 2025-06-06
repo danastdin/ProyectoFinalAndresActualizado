@@ -1,5 +1,6 @@
 package com.example.proyectofinalandres.presentation.product
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,12 +12,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.proyectofinalandres.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -88,8 +93,19 @@ fun MyOrdersScreen(
             Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(Color(0xFFE3F2FD))
         ) {
+            // imagen de fondo con blur y opacidad
+            Image(
+                painter = painterResource(id = R.drawable.nvrmnd_fondo),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .matchParentSize()
+                    .blur(2.dp)
+                    .graphicsLayer { alpha = 0.3f }
+            )
+
+            // contenido superpuesto
             when {
                 isLoading -> {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
